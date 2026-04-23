@@ -39,7 +39,29 @@ NotJar is a powerful, fully open-source alternative to Hotjar, designed for deve
 
 ---
 
-## 🛠 Detailed Installation Guide
+## � Quick Start (Docker)
+
+Get up and running in less than 2 minutes:
+
+```bash
+# 1. Clone and enter
+git clone https://github.com/sentu1993/NotJar.git
+cd NotJar
+
+# 2. Setup Env
+cp .env.example .env
+
+# 3. Launch
+docker-compose up -d --build
+
+# 4. Init Database
+docker-compose exec api npx prisma migrate dev --name init
+```
+Access the dashboard at `http://localhost:3000`
+
+---
+
+## � Detailed Installation Guide
 
 ### 1. Prerequisites
 Ensure you have the following installed on your machine:
@@ -74,6 +96,29 @@ This command will:
 Once the containers are running, run the Prisma migrations:
 ```bash
 docker-compose exec api npx prisma migrate dev --name init
+```
+
+---
+
+## 🖥️ Manual Installation (Without Docker)
+
+If you prefer not to use Docker, follow these steps:
+
+### 1. Backend Setup
+```bash
+cd backend
+npm install
+cp .env.example .env # Update with your DB credentials
+npx prisma migrate dev
+npm run dev
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+cp .env.example .env # Update NEXT_PUBLIC_API_URL
+npm run dev
 ```
 
 ---
@@ -118,7 +163,24 @@ notjar/
 
 ---
 
-## 🛡 Security & Privacy
+## � How to Push Changes to Your Repository
+
+To save your changes and push them to your own GitHub:
+
+```bash
+# 1. Stage your changes
+git add .
+
+# 2. Commit your changes
+git commit -m "feat: updated installation instructions"
+
+# 3. Push to GitHub
+git push origin main
+```
+
+---
+
+## �🛡 Security & Privacy
 - **JWT Auth**: All dashboard endpoints are secured with JSON Web Tokens.
 - **CORS**: Configurable cross-origin resource sharing.
 - **Data Scrubbing**: The tracker can be configured to ignore specific input fields to protect PII (Personally Identifiable Information).
