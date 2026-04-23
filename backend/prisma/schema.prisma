@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  domain      String
+  trackingId  String    @unique @default(uuid())
+  ownerId     String
+  owner       User      @relation(fields: [ownerId], references: [id])
+  sessions    Session[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Session {
+  id             String    @id @default(cuid())
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id])
+  startTime      DateTime  @default(now())
+  endTime        DateTime?
+  duration       Int?      // in seconds
+  visitorId      String    // anonymous visitor id
+  ip             String?
+  country        String?
+  city           String?
+  userAgent      String?
+  browser        String?
+  os             String?
+  device         String?   // mobile, tablet, desktop
+  screenRes      String?   // e.g. 1920x1080
+  events         Event[]
+  recordingUrl   String?   // path to blob storage if stored separately
+  createdAt      DateTime  @default(now())
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id])
+  type      String   // click, scroll, mousemove, navigation, etc.
+  timestamp DateTime @default(now())
+  data      Json     // details of the event
+}
+
+model HeatmapData {
+  id        String   @id @default(cuid())
+  projectId String
+  pageUrl   String
+  type      String   // click, scroll, move
+  x         Float?
+  y         Float?
+  value     Float?   // for scroll depth or intensity
+  timestamp DateTime @default(now())
+
+  @@index([projectId, pageUrl, type])
+}
