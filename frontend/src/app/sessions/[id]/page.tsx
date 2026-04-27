@@ -26,10 +26,10 @@ export default function SessionReplayPage() {
   }, [id]);
 
   useEffect(() => {
-    if (user && id) {
+    if (id) {
       fetchEvents();
     }
-  }, [user, id, fetchEvents]);
+  }, [id, fetchEvents]);
 
   useEffect(() => {
     if (isPlaying && events.length > 0) {
@@ -83,7 +83,7 @@ export default function SessionReplayPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-white p-8 text-black">
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border">
         <div className="bg-gray-900 p-4 text-white flex justify-between items-center">
           <div className="flex items-center space-x-4">

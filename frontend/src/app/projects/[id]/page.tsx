@@ -23,10 +23,10 @@ export default function ProjectPage() {
   }, [id]);
 
   useEffect(() => {
-    if (user && id) {
+    if (id) {
       fetchProjectStats();
     }
-  }, [user, id, fetchProjectStats]);
+  }, [id, fetchProjectStats]);
 
   const trackingScript = data ? `
 <script>
