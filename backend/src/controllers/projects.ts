@@ -33,20 +33,20 @@ export const getProjectStats = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const project = await prisma.project.findFirst({
-      where: { id, ownerId: req.user?.id }
+      where: { id: id as string, ownerId: req.user?.id }
     });
 
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    const sessionsCount = await prisma.session.count({ where: { projectId: id } });
+    const sessionsCount = await prisma.session.count({ where: { projectId: id as string } });
     const eventsCount = await prisma.event.count({
-      where: { session: { projectId: id } }
+      where: { session: { projectId: id as string } }
     });
 
     const recentSessions = await prisma.session.findMany({
-      where: { projectId: id },
+      where: { projectId: id as string },
       take: 10,
       orderBy: { startTime: 'desc' }
     });

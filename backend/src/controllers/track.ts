@@ -87,7 +87,7 @@ export const getSessionEvents = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const events = await prisma.event.findMany({
-      where: { sessionId: id },
+      where: { sessionId: id as string },
       orderBy: { timestamp: 'asc' }
     });
     res.json(events);
@@ -103,9 +103,9 @@ export const getHeatmapData = async (req: Request, res: Response) => {
 
     const data = await prisma.heatmapData.findMany({
       where: {
-        projectId,
-        type: type as string,
-        pageUrl: pageUrl as string
+        projectId: projectId as string,
+        type: typeof type === 'string' ? type : undefined,
+        pageUrl: typeof pageUrl === 'string' ? pageUrl : undefined
       }
     });
     res.json(data);

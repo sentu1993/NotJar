@@ -17,7 +17,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+    const decoded = jwt.verify(token as string, (process.env.JWT_SECRET || 'secret') as string) as any;
     req.user = { id: decoded.id, email: decoded.email };
     next();
   } catch (err) {

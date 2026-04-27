@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+!prisma.config.js
+!tracker.js
