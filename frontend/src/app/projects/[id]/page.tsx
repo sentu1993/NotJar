@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import api from '@/utils/api';
+import api, { API_URL } from '@/utils/api';
 import { useAuth } from '@/context/AuthContext';
 import { Copy, Check, Users, MousePointer, Layers } from 'lucide-react';
 
@@ -33,7 +33,7 @@ export default function ProjectPage() {
   (function(n,o,t,j,a,r){
     n.NotJarId=j; a=o.getElementsByTagName('head')[0];
     r=o.createElement('script'); r.async=1;
-    r.src='http://localhost:5000/tracker.js?id='+j;
+    r.src='${API_URL.replace('/api', '')}/tracker.js?id='+j;
     a.appendChild(r);
   })(window,document);
 </script>`.trim() : '';
@@ -44,13 +44,13 @@ export default function ProjectPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!data) return <div className="p-8">Loading...</div>;
+  if (!data) return <div className="p-8 text-black bg-white min-h-screen">Loading project data...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white text-black min-h-screen">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">{data.project.name}</h1>
-        <p className="text-gray-600">{data.project.domain}</p>
+        <h1 className="text-2xl font-bold text-black">{data.project.name}</h1>
+        <p className="text-gray-700">{data.project.domain}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -115,7 +115,7 @@ export default function ProjectPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(session.startTime).toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-black">
                   {session.visitorId.substring(0, 8)}...
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

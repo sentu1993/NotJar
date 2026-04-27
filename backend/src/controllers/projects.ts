@@ -14,13 +14,22 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
 export const createProject = async (req: AuthRequest, res: Response) => {
   try {
     const { name, domain } = req.body;
-    // For "no login" mode, we'll assign projects to the first user found
-    const firstUser = await prisma.user.findFirst();
+    let firstUser = await prisma.user.findFirst();
+    if (!firstUser) {
+      firstUser = await prisma.user.create({
+        data: {
+          email: 'admin@notjar.com',
+          password: 'password123',
+          name: 'Admin'
+        }
+      });
+    }
+
     const project = await prisma.project.create({
       data: {
         name,
         domain,
-        ownerId: firstUser ? firstUser.id : 'default-owner'
+        ownerId: firstUser.id
       }
     });
     res.status(201).json(project);
