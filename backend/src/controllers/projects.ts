@@ -4,7 +4,15 @@ import { AuthRequest } from '../middleware/auth';
 
 export const getProjects = async (req: AuthRequest, res: Response) => {
   try {
-    const projects = await prisma.project.findMany();
+    const projects = await prisma.project.findMany({
+      where: { ownerId: req.user!.id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: { sessions: true }
+        }
+      }
+    });
     res.json(projects);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch projects' });
@@ -14,22 +22,15 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
 export const createProject = async (req: AuthRequest, res: Response) => {
   try {
     const { name, domain } = req.body;
-    let firstUser = await prisma.user.findFirst();
-    if (!firstUser) {
-      firstUser = await prisma.user.create({
-        data: {
-          email: 'admin@notjar.com',
-          password: 'password123',
-          name: 'Admin'
-        }
-      });
+    if (!name || !domain) {
+      return res.status(400).json({ error: 'Project name and domain are required' });
     }
 
     const project = await prisma.project.create({
       data: {
-        name,
-        domain,
-        ownerId: firstUser.id
+        name: name.trim(),
+        domain: domain.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''),
+        ownerId: req.user!.id
       }
     });
     res.status(201).json(project);
@@ -42,7 +43,7 @@ export const getProjectStats = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const project = await prisma.project.findFirst({
-      where: { id: id as string }
+      where: { id: id as string, ownerId: req.user!.id }
     });
 
     if (!project) {
@@ -57,7 +58,12 @@ export const getProjectStats = async (req: AuthRequest, res: Response) => {
     const recentSessions = await prisma.session.findMany({
       where: { projectId: id as string },
       take: 10,
-      orderBy: { startTime: 'desc' }
+      orderBy: { startTime: 'desc' },
+      include: {
+        _count: {
+          select: { events: true }
+        }
+      }
     });
 
     res.json({

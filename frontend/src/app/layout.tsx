@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
-import { Layers } from "lucide-react";
 import { AuthProvider } from "@/context/AuthContext";
+import AppHeader from "@/components/AppHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,20 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-950 antialiased`}
       >
         <AuthProvider>
-          <header className="bg-white border-b sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-              <Link href="/dashboard" className="text-xl font-bold text-indigo-600 flex items-center">
-                <Layers className="w-6 h-6 mr-2" />
-                NotJar
-              </Link>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-500">Self-Hosted Analytics</span>
-              </div>
-            </div>
-          </header>
+          <AppHeader />
           <main>
             {children}
           </main>

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import path from 'path';
 
 import trackRoutes from './routes/track';
 import authRoutes from './routes/auth';
@@ -23,9 +24,14 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 const PORT = process.env.PORT || 5000;
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 app.use(compression());
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || true,
+  credentials: true
+}));
 app.use(express.json());
 
 // Basic health check
@@ -33,8 +39,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Serve the tracker script
-app.use('/tracker.js', express.static('../tracker/tracker.js'));
+// Serve the tracker script from the monorepo tracker package.
+app.get('/tracker.js', (_req, res, next) => {
+  const trackerPath = path.resolve(process.cwd(), '../tracker/tracker.js');
+  res.type('application/javascript');
+  res.sendFile(trackerPath, (err) => {
+    if (err) next(err);
+  });
+});
 
 // API Routes
 app.use('/api/track', trackRoutes);
