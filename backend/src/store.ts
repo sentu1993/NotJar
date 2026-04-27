@@ -54,7 +54,9 @@ interface StoreShape {
   heatmapData: StoredHeatmapPoint[];
 }
 
-const dataDir = path.resolve(process.cwd(), 'data');
+const dataDir = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+  ? path.join('/tmp', 'notjar-data')
+  : path.resolve(process.cwd(), 'data');
 const dataFile = path.join(dataDir, 'notjar-store.json');
 
 const emptyStore = (): StoreShape => ({
