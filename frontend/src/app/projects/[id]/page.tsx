@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import api from '@/utils/api';
 import { useAuth } from '@/context/AuthContext';
 import { Copy, Check, Users, MousePointer, Layers } from 'lucide-react';
@@ -122,9 +122,9 @@ export default function ProjectPage() {
                   {session.browser || 'Unknown'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link href={`/sessions/${session.id}`} className="text-indigo-600 hover:text-indigo-900">
+                  <NextLink href={`/sessions/${session.id}`} className="text-indigo-600 hover:text-indigo-900">
                     Replay
-                  </Link>
+                  </NextLink>
                 </td>
               </tr>
             ))}
