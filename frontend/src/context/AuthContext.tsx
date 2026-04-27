@@ -1,8 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import api from '@/utils/api';
+import React, { createContext, useContext } from 'react';
 
 interface User {
   id: string;
@@ -20,37 +18,12 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const user = { id: 'open-workspace', email: 'workspace@notjar.local', name: 'Open Workspace' };
+  const loading = false;
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+  const login = () => undefined;
 
-    api.get<User>('/auth/me')
-      .then((res) => setUser(res.data))
-      .catch(() => {
-        localStorage.removeItem('token');
-        setUser(null);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const login = (token: string, user: User) => {
-    localStorage.setItem('token', token);
-    setUser(user);
-    router.push('/dashboard');
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/login');
-  };
+  const logout = () => undefined;
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>

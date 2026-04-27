@@ -2,10 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft, Loader2, Monitor, MousePointer, Pause, Play, RotateCcw } from 'lucide-react';
 import api from '@/utils/api';
-import { useAuth } from '@/context/AuthContext';
 
 interface EventData {
   x?: number;
@@ -44,9 +43,7 @@ const formatTime = (ms: number) => {
 
 export default function SessionReplayPage() {
   const params = useParams();
-  const router = useRouter();
   const id = String(params.id);
-  const { user, loading } = useAuth();
   const [events, setEvents] = useState<ReplayEvent[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -70,16 +67,10 @@ export default function SessionReplayPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login');
-    }
-  }, [loading, router, user]);
-
-  useEffect(() => {
-    if (user && id) {
+    if (id) {
       fetchEvents();
     }
-  }, [id, user, fetchEvents]);
+  }, [id, fetchEvents]);
 
   useEffect(() => {
     const node = stageRef.current;
@@ -172,7 +163,7 @@ export default function SessionReplayPage() {
     setIsPlaying(false);
   };
 
-  if (loading || (!user && !loading) || isFetching) {
+  if (isFetching) {
     return (
       <div className="grid min-h-[calc(100vh-4rem)] place-items-center">
         <Loader2 className="h-8 w-8 animate-spin text-slate-500" />

@@ -32,3 +32,6 @@ yarn-error.log*
 
 # Prisma
 /backend/generated/
+
+# Local fallback data store
+backend/data/

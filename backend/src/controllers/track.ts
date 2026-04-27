@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../index';
+import { fallbackStore, shouldUseFallbackStore } from '../store';
 
 const parseUserAgent = (userAgent = '') => {
   const browser = /Edg\//.test(userAgent)
@@ -40,6 +41,25 @@ export const startSession = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Project ID and visitor ID are required' });
     }
 
+    if (shouldUseFallbackStore()) {
+      const project = fallbackStore.findProjectByTrackingId(projectId);
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found' });
+      }
+      const parsedAgent = parseUserAgent(userAgent);
+      const session = fallbackStore.startSession({
+        projectId: project.id,
+        visitorId,
+        userAgent,
+        browser: parsedAgent.browser,
+        os: parsedAgent.os,
+        device: parsedAgent.device,
+        screenRes,
+        ip: req.ip
+      });
+      return res.json({ sessionId: session.id });
+    }
+
     const project = await prisma.project.findUnique({
       where: { trackingId: projectId }
     });
@@ -77,6 +97,14 @@ export const trackEvents = async (req: Request, res: Response) => {
 
     if (!sessionId || !events || !Array.isArray(events)) {
       return res.status(400).json({ error: 'Invalid events data' });
+    }
+
+    if (shouldUseFallbackStore()) {
+      const stored = fallbackStore.addEvents(sessionId, events);
+      if (!stored) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+      return res.json({ success: true });
     }
 
     const session = await prisma.session.findUnique({
@@ -140,13 +168,18 @@ export const trackEvents = async (req: Request, res: Response) => {
 export const getSessionEvents = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (shouldUseFallbackStore()) {
+      return res.json(fallbackStore.getSessionEvents(id as string));
+    }
+
     const events = await prisma.event.findMany({
       where: { sessionId: id as string },
       orderBy: { timestamp: 'asc' }
     });
     res.json(events);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch events' });
+    console.warn('Prisma unavailable, reading events from fallback store:', err);
+    res.json(fallbackStore.getSessionEvents(req.params.id as string));
   }
 };
 
@@ -154,6 +187,13 @@ export const getHeatmapData = async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params;
     const { type, pageUrl } = req.query;
+    if (shouldUseFallbackStore()) {
+      return res.json(fallbackStore.getHeatmapData(
+        projectId as string,
+        typeof type === 'string' ? type : undefined,
+        typeof pageUrl === 'string' ? pageUrl : undefined
+      ));
+    }
 
     const data = await prisma.heatmapData.findMany({
       where: {
@@ -164,6 +204,13 @@ export const getHeatmapData = async (req: Request, res: Response) => {
     });
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch heatmap data' });
+    console.warn('Prisma unavailable, reading heatmap from fallback store:', err);
+    const { projectId } = req.params;
+    const { type, pageUrl } = req.query;
+    res.json(fallbackStore.getHeatmapData(
+      projectId as string,
+      typeof type === 'string' ? type : undefined,
+      typeof pageUrl === 'string' ? pageUrl : undefined
+    ));
   }
 };

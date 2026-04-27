@@ -2,17 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 
 export default function Home() {
   const router = useRouter();
-  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading) {
-      router.replace(user ? '/dashboard' : '/login');
-    }
-  }, [loading, router, user]);
+    router.replace('/dashboard');
+  }, [router]);
 
   return (
     <div className="grid min-h-[calc(100vh-4rem)] place-items-center">

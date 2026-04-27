@@ -2,9 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Activity, AlertCircle, ArrowRight, BarChart2, Globe, Loader2, Plus, Users } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 
 interface Project {
@@ -27,8 +25,6 @@ const getErrorMessage = (err: unknown, fallback: string) => {
 };
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', domain: '' });
@@ -50,16 +46,8 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login');
-    }
-  }, [loading, router, user]);
-
-  useEffect(() => {
-    if (user) {
-      fetchProjects();
-    }
-  }, [user, fetchProjects]);
+    fetchProjects();
+  }, [fetchProjects]);
 
   const totalSessions = useMemo(
     () => projects.reduce((sum, project) => sum + (project._count?.sessions || 0), 0),
@@ -81,14 +69,6 @@ export default function DashboardPage() {
       setIsCreating(false);
     }
   };
-
-  if (loading || (!user && !loading)) {
-    return (
-      <div className="grid min-h-[calc(100vh-4rem)] place-items-center">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-500" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
