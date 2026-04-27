@@ -39,6 +39,9 @@ NotJar is a powerful, fully open-source alternative to Hotjar, designed for deve
 
 ---
 
+<img width="1588" height="433" alt="image" src="https://github.com/user-attachments/assets/06e08dbd-bc5d-424e-aee8-ba0d3680dc5a" />
+
+
 ## � Quick Start (Docker)
 
 Get up and running in less than 2 minutes:
