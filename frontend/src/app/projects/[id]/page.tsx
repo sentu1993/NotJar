@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import api from '@/utils/api';
 import { useAuth } from '@/context/AuthContext';
 import { Copy, Check, Users, MousePointer, Layers } from 'lucide-react';
