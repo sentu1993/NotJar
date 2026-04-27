@@ -4,9 +4,7 @@ import { AuthRequest } from '../middleware/auth';
 
 export const getProjects = async (req: AuthRequest, res: Response) => {
   try {
-    const projects = await prisma.project.findMany({
-      where: { ownerId: req.user?.id }
-    });
+    const projects = await prisma.project.findMany();
     res.json(projects);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch projects' });
@@ -16,11 +14,13 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
 export const createProject = async (req: AuthRequest, res: Response) => {
   try {
     const { name, domain } = req.body;
+    // For "no login" mode, we'll assign projects to the first user found
+    const firstUser = await prisma.user.findFirst();
     const project = await prisma.project.create({
       data: {
         name,
         domain,
-        ownerId: req.user!.id
+        ownerId: firstUser ? firstUser.id : 'default-owner'
       }
     });
     res.status(201).json(project);
@@ -33,7 +33,7 @@ export const getProjectStats = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const project = await prisma.project.findFirst({
-      where: { id: id as string, ownerId: req.user?.id }
+      where: { id: id as string }
     });
 
     if (!project) {
