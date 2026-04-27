@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/utils/api';
@@ -13,20 +13,20 @@ export default function ProjectPage() {
   const [data, setData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (user && id) {
-      fetchProjectStats();
-    }
-  }, [user, id]);
-
-  const fetchProjectStats = async () => {
+  const fetchProjectStats = useCallback(async () => {
     try {
       const res = await api.get(`/projects/${id}/stats`);
       setData(res.data);
     } catch (err) {
-      console.error('Failed to fetch stats');
+      console.error('Failed to fetch stats', err);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (user && id) {
+      fetchProjectStats();
+    }
+  }, [user, id, fetchProjectStats]);
 
   const trackingScript = data ? `
 <script>
@@ -110,7 +110,7 @@ export default function ProjectPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.recentSessions.map((session: any) => (
+            {data.recentSessions.map((session: { id: string; startTime: string; visitorId: string; browser?: string }) => (
               <tr key={session.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(session.startTime).toLocaleString()}

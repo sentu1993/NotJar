@@ -18,8 +18,9 @@ export default function RegisterPage() {
     try {
       const res = await api.post('/auth/register', { email, password, name });
       login(res.data.token, res.data.user);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { error?: string } } };
+      setError(errorObj.response?.data?.error || 'Registration failed');
     }
   };
 

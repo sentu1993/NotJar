@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 import Link from 'next/link';
@@ -19,20 +19,20 @@ export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', domain: '' });
 
-  useEffect(() => {
-    if (user) {
-      fetchProjects();
-    }
-  }, [user]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const res = await api.get('/projects');
       setProjects(res.data);
     } catch (err) {
-      console.error('Failed to fetch projects');
+      console.error('Failed to fetch projects', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchProjects();
+    }
+  }, [user, fetchProjects]);
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +42,7 @@ export default function DashboardPage() {
       setNewProject({ name: '', domain: '' });
       fetchProjects();
     } catch (err) {
-      console.error('Failed to create project');
+      console.error('Failed to create project', err);
     }
   };
 

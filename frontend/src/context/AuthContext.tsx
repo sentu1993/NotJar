@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const res = await api.get('/auth/me');
           setUser(res.data);
         } catch (err) {
+          console.error('Auth initialization failed', err);
           localStorage.removeItem('token');
         }
       }

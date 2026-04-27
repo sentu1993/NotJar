@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import api from '@/utils/api';
 import { useAuth } from '@/context/AuthContext';
@@ -9,27 +9,27 @@ import { Play, Pause, RotateCcw, Monitor } from 'lucide-react';
 export default function SessionReplayPage() {
   const { id } = useParams();
   const { user } = useAuth();
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<{ id: string; timestamp: string; type: string; data: any }[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-  const [clicks, setClicks] = useState<any[]>([]);
+  const [clicks, setClicks] = useState<{ x: number; y: number; id: string }[]>([]);
   const playbackRef = useRef<any>(null);
+
+  const fetchEvents = useCallback(async () => {
+    try {
+      const res = await api.get(`/track/sessions/${id}/events`);
+      setEvents(res.data);
+    } catch (err) {
+      console.error('Failed to fetch events', err);
+    }
+  }, [id]);
 
   useEffect(() => {
     if (user && id) {
       fetchEvents();
     }
-  }, [user, id]);
-
-  const fetchEvents = async () => {
-    try {
-      const res = await api.get(`/track/sessions/${id}/events`);
-      setEvents(res.data);
-    } catch (err) {
-      console.error('Failed to fetch events');
-    }
-  };
+  }, [user, id, fetchEvents]);
 
   useEffect(() => {
     if (isPlaying && events.length > 0) {
